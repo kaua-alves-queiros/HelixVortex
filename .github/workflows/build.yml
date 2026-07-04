@@ -19,28 +19,28 @@ jobs:
             name: Windows-x64
             artifact-name: HelixVortex-Windows-x64
             output-path: bin/Release/net9.0/win-x64/publish/
-            publish-args: -r win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=false
+            publish-args: -f net9.0 -r win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=false
 
           - os: ubuntu-latest
             rid: linux-x64
             name: Linux-x64
             artifact-name: HelixVortex-Linux-x64
             output-path: bin/Release/net9.0/linux-x64/publish/
-            publish-args: -r linux-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=false
+            publish-args: -f net9.0 -r linux-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=false
 
           - os: macos-latest
             rid: osx-x64
             name: macOS-Intel-x64
             artifact-name: HelixVortex-macOS-Intel
             output-path: bin/Release/net9.0/osx-x64/publish/
-            publish-args: -r osx-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=false
+            publish-args: -f net9.0 -r osx-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=false
 
           - os: macos-latest
             rid: osx-arm64
             name: macOS-AppleSilicon-arm64
             artifact-name: HelixVortex-macOS-AppleSilicon
             output-path: bin/Release/net9.0/osx-arm64/publish/
-            publish-args: -r osx-arm64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=false
+            publish-args: -f net9.0 -r osx-arm64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=false
 
           - os: ubuntu-latest
             rid: android
