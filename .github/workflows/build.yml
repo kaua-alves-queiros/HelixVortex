@@ -19,24 +19,35 @@ jobs:
             name: Windows-x64
             artifact-name: HelixVortex-Windows-x64
             output-path: bin/Release/net9.0/win-x64/publish/
+            publish-args: -r win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=false
 
           - os: ubuntu-latest
             rid: linux-x64
             name: Linux-x64
             artifact-name: HelixVortex-Linux-x64
             output-path: bin/Release/net9.0/linux-x64/publish/
+            publish-args: -r linux-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=false
 
           - os: macos-latest
             rid: osx-x64
             name: macOS-Intel-x64
             artifact-name: HelixVortex-macOS-Intel
             output-path: bin/Release/net9.0/osx-x64/publish/
+            publish-args: -r osx-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=false
 
           - os: macos-latest
             rid: osx-arm64
             name: macOS-AppleSilicon-arm64
             artifact-name: HelixVortex-macOS-AppleSilicon
             output-path: bin/Release/net9.0/osx-arm64/publish/
+            publish-args: -r osx-arm64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=false
+
+          - os: ubuntu-latest
+            rid: android
+            name: Android
+            artifact-name: HelixVortex-Android
+            output-path: bin/Release/net9.0-android/
+            publish-args: -f net9.0-android -p:BUILD_ANDROID=true -p:AndroidBuildApplication=true
 
     steps:
     - name: Checkout Code
@@ -46,6 +57,10 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '9.0.x'
+
+    - name: Install Android Workload
+      if: matrix.rid == 'android'
+      run: sudo dotnet workload install android
 
     - name: Restore NuGet Cache
       uses: actions/cache@v4
@@ -59,7 +74,7 @@ jobs:
       run: dotnet restore
 
     - name: Publish Build
-      run: dotnet publish -c Release -r ${{ matrix.rid }} --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=false
+      run: dotnet publish -c Release ${{ matrix.publish-args }}
 
     - name: Package Artifacts (Windows)
       if: matrix.os == 'windows-latest'
@@ -67,10 +82,18 @@ jobs:
         Compress-Archive -Path ${{ matrix.output-path }}* -DestinationPath ${{ matrix.artifact-name }}.zip
 
     - name: Package Artifacts (Linux / macOS)
-      if: matrix.os != 'windows-latest'
+      if: matrix.os != 'windows-latest' && matrix.rid != 'android'
       run: |
         cd ${{ matrix.output-path }}
         zip -r ../../../../../${{ matrix.artifact-name }}.zip .
+
+    - name: Package Artifacts (Android)
+      if: matrix.rid == 'android'
+      run: |
+        mkdir -p android-output
+        find ${{ matrix.output-path }} -name "*.apk" -exec cp {} android-output/ \;
+        cd android-output
+        zip -r ../${{ matrix.artifact-name }}.zip .
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
