@@ -47,7 +47,7 @@ jobs:
             name: Android
             artifact-name: HelixVortex-Android
             output-path: bin/Release/net9.0-android/
-            publish-args: -f net9.0-android -p:BUILD_ANDROID=true -p:AndroidBuildApplication=true
+            publish-args: -f net9.0-android -p:BUILD_ANDROID=true -p:AndroidBuildApplication=true -p:AndroidPackageFormat=apk
 
     steps:
     - name: Checkout Code
@@ -91,7 +91,7 @@ jobs:
       if: matrix.rid == 'android'
       run: |
         mkdir -p android-output
-        find ${{ matrix.output-path }} -name "*.apk" -exec cp {} android-output/ \;
+        find ${{ matrix.output-path }} \( -name "*.apk" -o -name "*.aab" \) -exec cp {} android-output/ \;
         cd android-output
         zip -r ../${{ matrix.artifact-name }}.zip .
 
