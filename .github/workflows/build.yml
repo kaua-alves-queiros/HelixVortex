@@ -91,7 +91,9 @@ jobs:
       if: matrix.rid == 'android'
       run: |
         mkdir -p android-output
-        find ${{ matrix.output-path }} \( -name "*.apk" -o -name "*.aab" \) -exec cp {} android-output/ \;
+        echo "Searching for APK/AAB files..."
+        find . \( -name "*.apk" -o -name "*.aab" \)
+        find . \( -name "*.apk" -o -name "*.aab" \) -exec cp {} android-output/ \;
         cd android-output
         zip -r ../${{ matrix.artifact-name }}.zip .
 
