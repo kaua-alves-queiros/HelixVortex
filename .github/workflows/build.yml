@@ -78,3 +78,36 @@ jobs:
         name: ${{ matrix.artifact-name }}
         path: ${{ matrix.artifact-name }}.zip
         retention-days: 7
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+
+    - name: Move artifacts to flat folder
+      run: |
+        mkdir -p release-assets
+        find artifacts -name "*.zip" -exec cp {} release-assets/ \;
+        ls -la release-assets/
+
+    - name: Create Release and Upload Assets
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        tag_name="v1.0.${{ github.run_number }}"
+        gh release create "$tag_name" \
+          release-assets/*.zip \
+          --title "Helix Vortex $tag_name" \
+          --notes "Automatic release of Helix Vortex built on commit ${{ github.sha }}." \
+          --target main
